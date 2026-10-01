@@ -5,14 +5,19 @@ import android.media.RingtoneManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +31,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 
+// --------------------------------------------------
+// MÁQUINA DE ESTADOS
+// --------------------------------------------------
+
+enum class EstadoApp {
+    INICIO,
+    SALUDANDO,
+    ALARMA_ACTIVA,
+    ALARMA_APAGADA
+}
+
+
+// --------------------------------------------------
+// MAIN ACTIVITY
+// --------------------------------------------------
+
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,101 +59,181 @@ class MainActivity : ComponentActivity() {
 }
 
 
+// --------------------------------------------------
+// APLICACIÓN PRINCIPAL
+// --------------------------------------------------
+
 @Preview(showBackground = true)
 @Composable
 fun MeGustaApp() {
 
-    // Estados de nuestra aplicación
-    var modoOscuro by remember { mutableStateOf(true) }
-    var mostrarSaludos by remember { mutableStateOf(true) }
-    var meGusta by remember { mutableStateOf(false) }
+    // Estado para modo claro / oscuro
+    var modoOscuro by remember {
+        mutableStateOf(false)
+    }
 
-    // Contexto para poder reproducir la alarma
+    // Estado para mostrar los saludos
+    var mostrarSaludos by remember {
+        mutableStateOf(false)
+    }
+
+    // Contador de likes
+    var contadorLikes by remember {
+        mutableStateOf(0)
+    }
+
+    // Máquina de estados
+    var estadoApp by remember {
+        mutableStateOf(EstadoApp.INICIO)
+    }
+
+    // Contexto de Android
     val context = LocalContext.current
 
-    // Guardamos el sonido para poder detenerlo
-    var ringtone by remember {
-        mutableStateOf<Ringtone?>(null)
-    }
+    // Sonido de alarma
+    val alarmaUri = RingtoneManager.getDefaultUri(
+        RingtoneManager.TYPE_ALARM
+    )
 
-    // Colores dependiendo del modo
-    val fondo = if (modoOscuro) {
-        Color.Black
-    } else {
-        Color.White
-    }
-
-    val colorTexto = if (modoOscuro) {
-        Color.Magenta
-    } else {
-        Color(0xFF7B1FA2)
+    val ringtone: Ringtone? = remember {
+        RingtoneManager.getRingtone(
+            context,
+            alarmaUri
+        )
     }
 
 
+    // --------------------------------------------------
     // MATERIAL THEME
-    MaterialTheme {
+    // --------------------------------------------------
 
+    MaterialTheme(
+        colorScheme = if (modoOscuro) {
+            darkColorScheme()
+        } else {
+            lightColorScheme()
+        }
+    ) {
+
+        // --------------------------------------------------
         // SURFACE
+        // --------------------------------------------------
+
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = fondo
+            color = MaterialTheme.colorScheme.background
         ) {
 
+            // --------------------------------------------------
             // COLUMN
+            // --------------------------------------------------
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(32.dp),
+                    .padding(all = 32.dp),
 
                 verticalArrangement = Arrangement.Center,
-
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // TEXTO PRINCIPAL
+                // --------------------------------------------------
+                // HOLA ANDROID
+                // --------------------------------------------------
+
                 Text(
-                    text = "¡Bienvenida a mi app!",
-                    color = colorTexto,
-                    style = MaterialTheme.typography.headlineLarge
+                    text = "¡Hola Android!",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = Color.Magenta
                 )
 
 
-                // SALUDOS
-                if (mostrarSaludos) {
-
-                    Text(
-                        text = "¡Hola Maxi!",
-                        color = colorTexto,
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.padding(top = 20.dp)
-                    )
-
-                    Text(
-                        text = "¡Hola Sophia!",
-                        color = colorTexto,
-                        style = MaterialTheme.typography.headlineLarge,
-                        modifier = Modifier.padding(top = 10.dp)
-                    )
-                }
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
 
+                // --------------------------------------------------
+                // ESTADO ACTUAL
+                // --------------------------------------------------
+
+                Text(
+                    text = "Estado: $estadoApp",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+                // --------------------------------------------------
                 // BOTÓN SALUDAR
+                // --------------------------------------------------
+
                 Button(
                     onClick = {
+
                         mostrarSaludos = !mostrarSaludos
-                    },
-                    modifier = Modifier.padding(top = 20.dp)
+
+                        estadoApp = if (mostrarSaludos) {
+                            EstadoApp.SALUDANDO
+                        } else {
+                            EstadoApp.INICIO
+                        }
+                    }
                 ) {
+
                     Text("Saludar")
                 }
 
 
-                // BOTÓN CAMBIAR MODO
+                // --------------------------------------------------
+                // SALUDOS MAXI Y SOPHIA
+                // --------------------------------------------------
+
+                if (mostrarSaludos) {
+
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+
+                    Greeting(
+                        name = "Maxi",
+                        modifier = Modifier.background(
+                            Color.Magenta
+                        )
+                    )
+
+
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+
+
+                    Greeting(
+                        name = "Sophia",
+                        modifier = Modifier.background(
+                            Color.Green
+                        )
+                    )
+                }
+
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+
+                // --------------------------------------------------
+                // CAMBIAR MODO CLARO / OSCURO
+                // --------------------------------------------------
+
                 Button(
                     onClick = {
                         modoOscuro = !modoOscuro
-                    },
-                    modifier = Modifier.padding(top = 10.dp)
+                    }
                 ) {
 
                     Text(
@@ -145,54 +246,137 @@ fun MeGustaApp() {
                 }
 
 
-                // BOTÓN ME GUSTA
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+
+                // --------------------------------------------------
+                // CONTADOR DE LIKES
+                // --------------------------------------------------
+
+                Text(
+                    text = "Likes: $contadorLikes",
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+
+                Spacer(
+                    modifier = Modifier.height(6.dp)
+                )
+
+
                 Button(
                     onClick = {
-                        meGusta = !meGusta
-                    },
-                    modifier = Modifier.padding(top = 10.dp)
+                        contadorLikes++
+                    }
                 ) {
 
-                    Text(
-                        if (meGusta) {
-                            "💜 Me gusta"
-                        } else {
-                            "Me gusta"
-                        }
-                    )
+                    Text("Me gusta")
                 }
 
 
-                // BOTÓN PARA ENCENDER LA ALARMA
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+
+                // --------------------------------------------------
+                // PROBAR ALARMA
+                // --------------------------------------------------
+
                 Button(
                     onClick = {
 
-                        val alarma = RingtoneManager.getDefaultUri(
-                            RingtoneManager.TYPE_ALARM
-                        )
-
-                        ringtone = RingtoneManager.getRingtone(
-                            context,
-                            alarma
-                        )
-
                         ringtone?.play()
-                    },
-                    modifier = Modifier.padding(top = 10.dp)
+
+                        estadoApp = EstadoApp.ALARMA_ACTIVA
+                    }
                 ) {
+
                     Text("Probar alarma")
                 }
 
 
-                // BOTÓN PARA APAGAR LA ALARMA
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+
+                // --------------------------------------------------
+                // APAGAR ALARMA
+                // --------------------------------------------------
+
                 Button(
                     onClick = {
+
                         ringtone?.stop()
-                    },
-                    modifier = Modifier.padding(top = 10.dp)
+
+                        estadoApp = EstadoApp.ALARMA_APAGADA
+                    }
                 ) {
+
                     Text("Apagar alarma")
                 }
+            }
+        }
+    }
+}
+
+
+// --------------------------------------------------
+// FUNCIÓN GREETING
+// --------------------------------------------------
+
+@Composable
+fun Greeting(
+    name: String,
+    modifier: Modifier = Modifier
+) {
+
+    Text(
+        text = "¡Hola $name!",
+        modifier = modifier.padding(all = 8.dp),
+        style = MaterialTheme.typography.headlineLarge
+    )
+}
+
+
+// --------------------------------------------------
+// PREVIEW
+// --------------------------------------------------
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+
+    MaterialTheme {
+
+        Surface {
+
+            Column(
+                modifier = Modifier.padding(all = 32.dp)
+            ) {
+
+                Greeting(
+                    name = "Maxi",
+                    modifier = Modifier.background(
+                        Color.Magenta
+                    )
+                )
+
+
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
+
+
+                Greeting(
+                    name = "Sophia",
+                    modifier = Modifier.background(
+                        Color.Green
+                    )
+                )
             }
         }
     }
