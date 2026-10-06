@@ -1,51 +1,34 @@
 package com.ebc.primerproyectoandroid
 
-import android.media.Ringtone
-import android.media.RingtoneManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-
-
-// --------------------------------------------------
-// MÁQUINA DE ESTADOS
-// --------------------------------------------------
-
-enum class EstadoApp {
-    INICIO,
-    SALUDANDO,
-    ALARMA_ACTIVA,
-    ALARMA_APAGADA
-}
-
-
-// --------------------------------------------------
-// MAIN ACTIVITY
-// --------------------------------------------------
 
 class MainActivity : ComponentActivity() {
 
@@ -58,324 +41,93 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-// --------------------------------------------------
-// APLICACIÓN PRINCIPAL
-// --------------------------------------------------
-
 @Preview(showBackground = true)
 @Composable
 fun MeGustaApp() {
 
-    // Estado para modo claro / oscuro
+    // Estado para controlar el contador de "Me gusta"
+    var contador by remember {
+        mutableIntStateOf(0)
+    }
+
+    // Estado para controlar el modo claro y oscuro
     var modoOscuro by remember {
         mutableStateOf(false)
     }
 
-    // Estado para mostrar los saludos
-    var mostrarSaludos by remember {
-        mutableStateOf(false)
+    // Selecciona los colores dependiendo del modo
+    val colores = if (modoOscuro) {
+        darkColorScheme()
+    } else {
+        lightColorScheme()
     }
-
-    // Contador de likes
-    var contadorLikes by remember {
-        mutableStateOf(0)
-    }
-
-    // Máquina de estados
-    var estadoApp by remember {
-        mutableStateOf(EstadoApp.INICIO)
-    }
-
-    // Contexto de Android
-    val context = LocalContext.current
-
-    // Sonido de alarma
-    val alarmaUri = RingtoneManager.getDefaultUri(
-        RingtoneManager.TYPE_ALARM
-    )
-
-    val ringtone: Ringtone? = remember {
-        RingtoneManager.getRingtone(
-            context,
-            alarmaUri
-        )
-    }
-
-
-    // --------------------------------------------------
-    // MATERIAL THEME
-    // --------------------------------------------------
 
     MaterialTheme(
-        colorScheme = if (modoOscuro) {
-            darkColorScheme()
-        } else {
-            lightColorScheme()
-        }
+        colorScheme = colores
     ) {
-
-        // --------------------------------------------------
-        // SURFACE
-        // --------------------------------------------------
 
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
 
-            // --------------------------------------------------
-            // COLUMN
-            // --------------------------------------------------
-
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(all = 32.dp),
-
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // --------------------------------------------------
-                // HOLA ANDROID
-                // --------------------------------------------------
-
+                // Texto principal
                 Text(
                     text = "¡Hola Android!",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.Magenta
+                    style = MaterialTheme.typography.headlineLarge
                 )
 
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-
-
-                // --------------------------------------------------
-                // ESTADO ACTUAL
-                // --------------------------------------------------
-
+                // Contador
                 Text(
-                    text = "Estado: $estadoApp",
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "$contador Me gusta"
                 )
 
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-
-
-                // --------------------------------------------------
-                // BOTÓN SALUDAR
-                // --------------------------------------------------
-
+                // Botón Me gusta
                 Button(
                     onClick = {
-
-                        mostrarSaludos = !mostrarSaludos
-
-                        estadoApp = if (mostrarSaludos) {
-                            EstadoApp.SALUDANDO
-                        } else {
-                            EstadoApp.INICIO
-                        }
+                        contador++
                     }
                 ) {
 
-                    Text("Saludar")
-                }
-
-
-                // --------------------------------------------------
-                // SALUDOS MAXI Y SOPHIA
-                // --------------------------------------------------
-
-                if (mostrarSaludos) {
-
-                    Spacer(
-                        modifier = Modifier.height(10.dp)
+                    Icon(
+                        imageVector = Icons.Default.ThumbUp,
+                        contentDescription = "Me gusta"
                     )
-
-                    Greeting(
-                        name = "Maxi",
-                        modifier = Modifier.background(
-                            Color.Magenta
-                        )
-                    )
-
-
-                    Spacer(
-                        modifier = Modifier.height(10.dp)
-                    )
-
-
-                    Greeting(
-                        name = "Sophia",
-                        modifier = Modifier.background(
-                            Color.Green
-                        )
-                    )
-                }
-
-
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
-
-
-                // --------------------------------------------------
-                // CAMBIAR MODO CLARO / OSCURO
-                // --------------------------------------------------
-
-                Button(
-                    onClick = {
-                        modoOscuro = !modoOscuro
-                    }
-                ) {
 
                     Text(
-                        if (modoOscuro) {
-                            "Cambiar a modo claro"
-                        } else {
-                            "Cambiar a modo oscuro"
-                        }
+                        text = " Me gusta"
                     )
                 }
 
+                // Switch para cambiar entre modo claro y oscuro
+                Switch(
+                    checked = modoOscuro,
 
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
+                    onCheckedChange = { valorSwitch ->
+                        modoOscuro = valorSwitch
+                    },
 
+                    thumbContent = {
+                        Icon(
+                            imageVector = if (modoOscuro) {
+                                Icons.Default.DarkMode
+                            } else {
+                                Icons.Default.LightMode
+                            },
 
-                // --------------------------------------------------
-                // CONTADOR DE LIKES
-                // --------------------------------------------------
+                            contentDescription = "Cambiar modo de color",
 
-                Text(
-                    text = "Likes: $contadorLikes",
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-
-                Spacer(
-                    modifier = Modifier.height(6.dp)
-                )
-
-
-                Button(
-                    onClick = {
-                        contadorLikes++
+                            modifier = Modifier.size(
+                                SwitchDefaults.IconSize
+                            )
+                        )
                     }
-                ) {
-
-                    Text("Me gusta")
-                }
-
-
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
-
-
-                // --------------------------------------------------
-                // PROBAR ALARMA
-                // --------------------------------------------------
-
-                Button(
-                    onClick = {
-
-                        ringtone?.play()
-
-                        estadoApp = EstadoApp.ALARMA_ACTIVA
-                    }
-                ) {
-
-                    Text("Probar alarma")
-                }
-
-
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
-
-
-                // --------------------------------------------------
-                // APAGAR ALARMA
-                // --------------------------------------------------
-
-                Button(
-                    onClick = {
-
-                        ringtone?.stop()
-
-                        estadoApp = EstadoApp.ALARMA_APAGADA
-                    }
-                ) {
-
-                    Text("Apagar alarma")
-                }
-            }
-        }
-    }
-}
-
-
-// --------------------------------------------------
-// FUNCIÓN GREETING
-// --------------------------------------------------
-
-@Composable
-fun Greeting(
-    name: String,
-    modifier: Modifier = Modifier
-) {
-
-    Text(
-        text = "¡Hola $name!",
-        modifier = modifier.padding(all = 8.dp),
-        style = MaterialTheme.typography.headlineLarge
-    )
-}
-
-
-// --------------------------------------------------
-// PREVIEW
-// --------------------------------------------------
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-
-    MaterialTheme {
-
-        Surface {
-
-            Column(
-                modifier = Modifier.padding(all = 32.dp)
-            ) {
-
-                Greeting(
-                    name = "Maxi",
-                    modifier = Modifier.background(
-                        Color.Magenta
-                    )
-                )
-
-
-                Spacer(
-                    modifier = Modifier.height(10.dp)
-                )
-
-
-                Greeting(
-                    name = "Sophia",
-                    modifier = Modifier.background(
-                        Color.Green
-                    )
                 )
             }
         }
