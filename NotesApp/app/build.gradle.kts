@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.ebc.primerproyectoandroid"
+    namespace = "notes.app.ebc.karen.avila"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.ebc.primerproyectoandroid"
+        applicationId = "notes.app.ebc.karen.avila"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -36,7 +36,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.compose.material:material-icons-extended")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -52,4 +51,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+    implementation("androidx.compose.material:material-icons-extended")
+
 }
