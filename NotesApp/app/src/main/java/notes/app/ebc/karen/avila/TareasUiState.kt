@@ -10,16 +10,14 @@ data class TareasUiState(
     val tareasFiltradas: List<Tarea>
         get() {
             return when (filtro) {
-
                 FiltroTarea.TODAS -> tareas
 
-                FiltroTarea.PENDIENTES -> tareas.filter { tarea ->
-                    !tarea.completada
-                }
+                FiltroTarea.PENDIENTES ->
+                    tareas.filter { !it.completada }
 
-                FiltroTarea.COMPLETADAS -> tareas.filter { tarea ->
-                    tarea.completada
-                }
+                FiltroTarea.COMPLETADAS ->
+                    tareas.filter { it.completada }
             }
         }
 }
+
